@@ -12,13 +12,12 @@ import { writeAppState } from "./profileService";
 
 async function createTestPaths() {
   const root = await mkdtemp(path.join(os.tmpdir(), "claude-profile-manager-"));
-  const userData = path.join(root, "user-data");
   const home = path.join(root, "home");
 
-  await mkdir(userData, { recursive: true });
+  await mkdir(path.join(home, ".config", "c2-app"), { recursive: true });
   await mkdir(path.join(home, ".claude"), { recursive: true });
 
-  return createAppPaths(userData, home);
+  return createAppPaths(home);
 }
 
 describe("switchProfileInClaudeSettings", () => {

@@ -5,6 +5,7 @@ import type {
   ImportResult,
   SwitchResult,
 } from "@/shared/ipc";
+import type { Preferences } from "@/shared/preferences";
 import type { ManagedEnv, Profile, ProfileInput } from "@/shared/profiles";
 import { normalizeManagedEnv, normalizeProfileInput } from "@/shared/schema";
 
@@ -15,6 +16,7 @@ type MockOptions = {
   unmanagedKeys?: string[];
   importResult?: ImportResult;
   path?: string;
+  preferences?: Preferences;
 };
 
 type MockBackup = BackupEntry & {
@@ -26,6 +28,7 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
   let activeProfileId = options.activeProfileId ?? null;
   let managedEnv = normalizeManagedEnv(options.managedEnv ?? {});
   let backups: MockBackup[] = [];
+  let preferences: Preferences = options.preferences ?? { theme: "dark" };
   const path = options.path ?? "/Users/test/.claude/settings.json";
   const unmanagedKeys = options.unmanagedKeys ?? ["permissions", "hooks"];
   const importResult =
@@ -57,6 +60,7 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
         activeProfileId,
         importResult,
         settingsSnapshot: createSnapshot(),
+        preferences: structuredClone(preferences),
       };
     },
     async getProfiles() {
@@ -152,6 +156,12 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
       }
 
       managedEnv = structuredClone(backup.managedEnv);
+    },
+    async getPreferences() {
+      return structuredClone(preferences);
+    },
+    async savePreferences(prefs: Preferences) {
+      preferences = prefs;
     },
   };
 }

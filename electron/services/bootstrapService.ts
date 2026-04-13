@@ -8,6 +8,7 @@ import {
   readClaudeSettingsSource,
 } from "./claudeSettingsService";
 import type { AppPaths } from "./paths";
+import { readPreferences } from "./preferencesService";
 import { createEmptyAppState, readAppState, writeAppState } from "./profileService";
 
 function createImportedProfile(env: Profile["env"]): Profile {
@@ -24,6 +25,7 @@ function createImportedProfile(env: Profile["env"]): Profile {
 
 export async function bootstrapApp(paths: AppPaths): Promise<BootstrapResult> {
   const existingState = await readAppState(paths);
+  const preferences = await readPreferences(paths);
 
   if (existingState.profiles.length > 0) {
     return {
@@ -33,6 +35,7 @@ export async function bootstrapApp(paths: AppPaths): Promise<BootstrapResult> {
         status: "existing",
       },
       settingsSnapshot: await readClaudeSettingsSnapshot(paths),
+      preferences,
     };
   }
 
@@ -75,5 +78,6 @@ export async function bootstrapApp(paths: AppPaths): Promise<BootstrapResult> {
     activeProfileId: nextState.activeProfileId,
     importResult,
     settingsSnapshot: await readClaudeSettingsSnapshot(paths),
+    preferences,
   };
 }

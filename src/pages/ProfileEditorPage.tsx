@@ -20,6 +20,15 @@ export function ProfileEditorPage() {
   const profile = useMemo(() => profiles.find((candidate) => candidate.id === id), [id, profiles]);
   const mode = id ? "edit" : "create";
 
+  const leaveEditor = (message: string) => {
+    if (useProfilesStore.getState().dirtyProfileId && !window.confirm(message)) {
+      return;
+    }
+
+    setDirtyProfileId(null);
+    navigate("/");
+  };
+
   if (id && !profile) {
     return (
       <Card className="border border-amber-400/35 bg-amber-400/10 shadow-none">
@@ -54,14 +63,7 @@ export function ProfileEditorPage() {
       <Button
         variant="ghost"
         onPress={() => {
-          if (
-            useProfilesStore.getState().dirtyProfileId &&
-            !window.confirm("You have unsaved changes. Leave this editor without saving?")
-          ) {
-            return;
-          }
-
-          navigate("/");
+          leaveEditor("You have unsaved changes. Leave this editor without saving?");
         }}
       >
         <span className="flex items-center gap-2">
@@ -75,14 +77,7 @@ export function ProfileEditorPage() {
         mode={mode}
         profile={profile}
         onCancel={() => {
-          if (
-            useProfilesStore.getState().dirtyProfileId &&
-            !window.confirm("Discard your unsaved changes?")
-          ) {
-            return;
-          }
-
-          navigate("/");
+          leaveEditor("Discard your unsaved changes?");
         }}
         onDirtyChange={(dirty) => {
           setDirtyProfileId(dirty ? (id ?? "new-profile") : null);

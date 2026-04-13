@@ -28,6 +28,7 @@ export function AppShell() {
   const profiles = useProfilesStore((state) => state.profiles);
   const activeProfileId = useProfilesStore((state) => state.activeProfileId);
   const dirtyProfileId = useProfilesStore((state) => state.dirtyProfileId);
+  const setDirtyProfileId = useProfilesStore((state) => state.setDirtyProfileId);
   const currentSidebarKey = useUiStore((state) => state.currentSidebarKey);
   const setCurrentSidebarKey = useUiStore((state) => state.setCurrentSidebarKey);
 
@@ -45,6 +46,7 @@ export function AppShell() {
       return;
     }
 
+    setDirtyProfileId(null);
     setCurrentSidebarKey(key);
     navigate(href);
   };

@@ -25,7 +25,7 @@ export function OnboardingPage() {
   }, [navigate, profiles.length, setHasCompletedOnboarding]);
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl items-center justify-center px-6 py-12">
+    <div className="mx-auto flex h-full max-w-5xl items-center justify-center px-6 py-12">
       <Card className="w-full border border-[var(--app-border)] bg-[var(--app-surface)] shadow-[0_24px_60px_rgba(0,0,0,0.26)]">
         <CardContent className="space-y-8 p-8 md:p-10">
           <div className="space-y-4">

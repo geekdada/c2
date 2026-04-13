@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 import { getDesktopApi } from "@/app/desktopApi";
+import { useUiStore } from "@/app/store/ui";
 import type {
   BootstrapResult,
   ClaudeSettingsSnapshot,
@@ -51,6 +52,8 @@ export const useProfilesStore = create<ProfilesState>((set) => ({
 
     try {
       const result = await getDesktopApi().bootstrap();
+
+      useUiStore.getState().setTheme(result.preferences.theme);
 
       set({
         profiles: result.profiles,

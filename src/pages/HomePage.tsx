@@ -1,5 +1,5 @@
 import { Button, Card, CardContent } from "@heroui/react";
-import { Plus, Sparkles, TriangleAlert } from "lucide-react";
+import { Sparkles, TriangleAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useProfilesStore } from "@/app/store/profiles";
@@ -70,32 +70,6 @@ export function HomePage() {
           </CardContent>
         </Card>
       ) : null}
-
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--app-text-subtle)]">
-            C2 profiles
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold text-[var(--app-text)]">
-            Keep Anthropic environments clean
-          </h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--app-text-muted)]">
-            C2 removes stale managed keys first, then writes only non-empty values back into Claude
-            settings.
-          </p>
-        </div>
-        <Button
-          variant="primary"
-          onPress={() => {
-            navigate("/profiles/new");
-          }}
-        >
-          <span className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span>Create profile</span>
-          </span>
-        </Button>
-      </div>
 
       <ProfileList
         activeProfileId={activeProfileId}

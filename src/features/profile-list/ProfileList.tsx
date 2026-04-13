@@ -17,7 +17,7 @@ function formatManagedValue(profile: Profile, key: (typeof managedEnvKeys)[numbe
   const value = profile.env[key];
 
   if (!value) {
-    return "Not set";
+    return null;
   }
 
   if (isSecretKey(key)) {
@@ -58,56 +58,66 @@ export function ProfileList({
             key={profile.id}
             className="border border-[var(--app-border)] bg-[var(--app-surface)] shadow-none"
           >
-            <CardHeader className="flex flex-wrap items-start justify-between gap-3 p-5">
+            <CardHeader className="flex flex-wrap items-start justify-between gap-3 p-5 pb-3">
               <div>
                 <div className="flex flex-wrap items-center gap-3">
                   <h3 className="text-lg font-semibold text-[var(--app-text)]">{profile.name}</h3>
-                  <span
-                    className={`rounded-full px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] ${
-                      isActive
-                        ? "border border-emerald-400/40 bg-emerald-400/12 text-emerald-300"
-                        : "border border-[var(--app-border)] bg-[var(--app-surface-muted)] text-[var(--app-text-muted)]"
-                    }`}
-                  >
-                    {isActive ? "Active" : "Saved"}
-                  </span>
+                  {isActive ? (
+                    <span className="rounded-full border border-emerald-400/40 bg-emerald-400/12 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-emerald-300">
+                      Active
+                    </span>
+                  ) : null}
                 </div>
-                <p className="mt-2 text-sm text-[var(--app-text-muted)]">
+                <p className="mt-1.5 text-xs text-[var(--app-text-subtle)]">
                   Updated {new Date(profile.updatedAt).toLocaleString()}
                 </p>
               </div>
             </CardHeader>
 
-            <CardContent className="grid gap-3 px-5 pb-5 pt-0 sm:grid-cols-2">
-              {managedEnvKeys.map((key) => (
-                <div
-                  key={key}
-                  className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-muted)] p-3"
-                >
-                  <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--app-text-subtle)]">
-                    {managedKeyLabels[key]}
-                  </p>
-                  <p className="mt-2 break-all text-sm text-[var(--app-text)]">
-                    {formatManagedValue(profile, key)}
-                  </p>
-                </div>
-              ))}
+            <CardContent className="grid gap-2 px-5 pb-4 pt-0 sm:grid-cols-2">
+              {managedEnvKeys.map((key) => {
+                const value = formatManagedValue(profile, key);
+
+                return (
+                  <div
+                    key={key}
+                    className={`rounded-xl border p-3 ${
+                      value
+                        ? "border-[var(--app-border)] bg-[var(--app-surface-muted)]"
+                        : "border-transparent bg-[var(--app-surface-muted)]/40"
+                    }`}
+                  >
+                    <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--app-text-subtle)]">
+                      {managedKeyLabels[key]}
+                    </p>
+                    <p
+                      className={`mt-1.5 break-all text-sm ${
+                        value
+                          ? "font-mono text-[var(--app-text)]"
+                          : "text-[var(--app-text-subtle)]"
+                      }`}
+                    >
+                      {value ?? "Not set"}
+                    </p>
+                  </div>
+                );
+              })}
             </CardContent>
 
-            <CardFooter className="flex flex-wrap gap-3 p-5 pt-0">
-              <Button
-                variant={isActive ? "secondary" : "primary"}
-                onPress={() => {
-                  if (!isActive) {
+            <CardFooter className="flex flex-wrap gap-3 px-5 pb-5 pt-1">
+              {!isActive ? (
+                <Button
+                  variant="primary"
+                  onPress={() => {
                     onActivate(profile.id);
-                  }
-                }}
-              >
-                <span className="flex items-center gap-2">
-                  <ArrowRightLeft className="h-4 w-4" />
-                  <span>{isActive ? "Applied" : "Activate"}</span>
-                </span>
-              </Button>
+                  }}
+                >
+                  <span className="flex items-center gap-2">
+                    <ArrowRightLeft className="h-4 w-4" />
+                    <span>Activate</span>
+                  </span>
+                </Button>
+              ) : null}
               <Button
                 variant="secondary"
                 onPress={() => {

@@ -81,6 +81,10 @@ out
 # Nuxt.js build / generate output
 .nuxt
 dist
+dist-electron
+playwright-report
+test-results
+blob-report
 
 # Gatsby files
 .cache/

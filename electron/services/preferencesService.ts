@@ -11,7 +11,7 @@ export async function readPreferences(paths: AppPaths): Promise<Preferences> {
     const raw = await readFile(paths.preferencesFile, "utf8");
     const parsed = JSON.parse(raw) as Preferences;
 
-    if (parsed.theme !== "dark" && parsed.theme !== "light") {
+    if (!["dark", "light", "system"].includes(parsed.theme)) {
       return defaultPreferences;
     }
 

@@ -1,5 +1,6 @@
-import { Button, Card, CardContent, CardHeader } from '@heroui/react'
-import { MoonStar, RotateCcw, SunMedium } from 'lucide-react'
+import { Button, Card, CardContent, CardHeader, ToggleButton, ToggleButtonGroup } from '@heroui/react'
+import type { Key } from '@heroui/react'
+import { Monitor, MoonStar, RotateCcw, SunMedium } from 'lucide-react'
 
 import { useProfilesStore } from '@/app/store/profiles'
 import { useUiStore } from '@/app/store/ui'
@@ -11,7 +12,7 @@ export function AppSettingsPage() {
   const restoreBackup = useProfilesStore((state) => state.restoreBackup)
   const isSaving = useProfilesStore((state) => state.isSaving)
   const theme = useUiStore((state) => state.theme)
-  const toggleTheme = useUiStore((state) => state.toggleTheme)
+  const setTheme = useUiStore((state) => state.setTheme)
   const pushToast = useUiStore((state) => state.pushToast)
 
   return (
@@ -108,26 +109,33 @@ export function AppSettingsPage() {
         <div className="space-y-4">
           <Card className="border border-[var(--app-border)] bg-[var(--app-surface)] shadow-none">
             <CardHeader className="p-5 pb-0">
-              <div>
-                <h2 className="text-lg font-semibold text-[var(--app-text)]">
-                  Appearance
-                </h2>
-                <p className="mt-1 text-sm text-[var(--app-text-muted)]">
-                  Toggle between the compact dark and light surfaces.
-                </p>
-              </div>
+              <h2 className="text-lg font-semibold text-[var(--app-text)]">
+                Appearance
+              </h2>
             </CardHeader>
-            <CardContent className="flex flex-row gap-3 p-5">
-              <Button variant="secondary" onPress={toggleTheme}>
-                <span className="flex items-center gap-2">
-                  {theme === 'dark' ? (
-                    <SunMedium className="h-4 w-4" />
-                  ) : (
-                    <MoonStar className="h-4 w-4" />
-                  )}
-                  <span>Switch to {theme === 'dark' ? 'light' : 'dark'}</span>
-                </span>
-              </Button>
+            <CardContent className="p-5">
+              <ToggleButtonGroup
+                disallowEmptySelection
+                selectedKeys={new Set([theme])}
+                selectionMode="single"
+                onSelectionChange={(keys: Set<Key>) => {
+                  const value = [...keys][0] as 'light' | 'dark' | 'system'
+                  setTheme(value)
+                }}
+              >
+                <ToggleButton id="light">
+                  <SunMedium className="h-4 w-4" />
+                  Light
+                </ToggleButton>
+                <ToggleButton id="dark">
+                  <MoonStar className="h-4 w-4" />
+                  Dark
+                </ToggleButton>
+                <ToggleButton id="system">
+                  <Monitor className="h-4 w-4" />
+                  System
+                </ToggleButton>
+              </ToggleButtonGroup>
             </CardContent>
           </Card>
 

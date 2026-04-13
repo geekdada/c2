@@ -23,7 +23,6 @@ type UiState = {
   toasts: ToastItem[];
   setCurrentSidebarKey: (key: string) => void;
   setTheme: (theme: ThemeMode) => void;
-  toggleTheme: () => void;
   setHasCompletedOnboarding: (value: boolean) => void;
   openSwitchModal: (profileId: string) => void;
   closeSwitchModal: () => void;
@@ -50,13 +49,6 @@ export const useUiStore = create<UiState>((set) => ({
   setTheme: (theme) => {
     set({ theme });
     void getDesktopApi().savePreferences({ theme });
-  },
-  toggleTheme: () => {
-    set((state) => {
-      const next = state.theme === "dark" ? "light" : "dark";
-      void getDesktopApi().savePreferences({ theme: next });
-      return { theme: next };
-    });
   },
   setHasCompletedOnboarding: (value) => {
     set({

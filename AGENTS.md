@@ -70,3 +70,7 @@ HashRouter with a `RouteCoordinator` component that auto-redirects: no profiles 
 ### Styling
 
 Tailwind CSS v4 + HeroUI component library. Dark mode by default (`<html class="dark">`). Custom CSS variables defined in `src/styles/theme.css` and `src/styles/linear.css`. Path alias `@/` maps to `src/`.
+
+## Design
+
+I want the app to look like Linear -- efficient and straight to the point.

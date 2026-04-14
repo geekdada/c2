@@ -1,4 +1,5 @@
 import {
+  Accordion,
   Button,
   Card,
   CardContent,
@@ -7,76 +8,100 @@ import {
   Input,
   Label,
   TextField,
-} from "@heroui/react";
-import { useForm, useStore } from "@tanstack/react-form";
-import { Eye, EyeOff, Save } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { ZodError } from "zod";
+  type Key,
+} from '@heroui/react'
+import { useForm, useStore } from '@tanstack/react-form'
+import { ChevronDown, Eye, EyeOff, Save } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { ZodError } from 'zod'
 
 import {
+  advancedEnvKeys,
   managedEnvKeys,
+  managedKeyDescriptions,
   managedKeyLabels,
   type ManagedEnvKey,
   type Profile,
   type ProfileInput,
-} from "@/shared/profiles";
+} from '@/shared/profiles'
 import {
   hasBothCredentials,
+  isValidIntegerInRange,
   isValidUrl,
   normalizeProfileInput,
   validateProfileInput,
-} from "@/shared/schema";
+} from '@/shared/schema'
+
+const basicEnvKeys = managedEnvKeys.filter(
+  (key) => !advancedEnvKeys.includes(key)
+)
 
 type ProfileFormProps = {
-  mode: "create" | "edit";
-  profile?: Profile;
-  isSaving?: boolean;
-  onCancel: () => void;
-  onDirtyChange: (dirty: boolean) => void;
-  onSubmit: (input: ProfileInput) => Promise<void>;
-};
+  mode: 'create' | 'edit'
+  profile?: Profile
+  isSaving?: boolean
+  onCancel: () => void
+  onDirtyChange: (dirty: boolean) => void
+  onSubmit: (input: ProfileInput) => Promise<void>
+}
 
 type FormValues = {
-  name: string;
-  env: Record<ManagedEnvKey, string>;
-};
+  name: string
+  env: Record<ManagedEnvKey, string>
+}
 
-const emptyEnv = Object.fromEntries(managedEnvKeys.map((key) => [key, ""])) as Record<
-  ManagedEnvKey,
-  string
->;
+const emptyEnv = Object.fromEntries(
+  managedEnvKeys.map((key) => [key, ''])
+) as Record<ManagedEnvKey, string>
 
 function toFormValues(profile?: Profile): FormValues {
   return {
-    name: profile?.name ?? "",
+    name: profile?.name ?? '',
     env: {
       ...emptyEnv,
       ...profile?.env,
     },
-  };
+  }
 }
 
 function getFieldType(key: ManagedEnvKey, showSecrets: boolean): string {
-  if (key === "ANTHROPIC_API_KEY" || key === "ANTHROPIC_AUTH_TOKEN") {
-    return showSecrets ? "text" : "password";
+  if (key === 'ANTHROPIC_API_KEY' || key === 'ANTHROPIC_AUTH_TOKEN') {
+    return showSecrets ? 'text' : 'password'
   }
 
-  if (key === "ANTHROPIC_BASE_URL") {
-    return "url";
+  if (key === 'ANTHROPIC_BASE_URL') {
+    return 'url'
   }
 
-  return "text";
+  return 'text'
+}
+
+function renderDescription(text: string) {
+  const parts = text.split(/(`[^`]+`)/)
+
+  return parts.map((part, i) =>
+    part.startsWith('`') && part.endsWith('`') ? (
+      <code
+        key={i}
+        className="rounded border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-1.5 py-0.5 font-mono text-[11px]"
+      >
+        {part.slice(1, -1)}
+      </code>
+    ) : (
+      part
+    ),
+  )
 }
 
 function mapZodIssuePath(path: PropertyKey[]): string | undefined {
-  if (path[0] === "name") return "name";
-  if (path[0] === "env" && path[1]) return `env.${String(path[1])}`;
+  if (path[0] === 'name') return 'name'
+  if (path[0] === 'env' && path[1]) return `env.${String(path[1])}`
 
-  const key = String(path[0]);
+  const key = String(path[0])
 
-  if (managedEnvKeys.includes(key as ManagedEnvKey)) return `env.${key}`;
+  if (managedEnvKeys.includes(key as ManagedEnvKey)) return `env.${key}`
 
-  return undefined;
+  return undefined
 }
 
 export function ProfileForm({
@@ -87,71 +112,87 @@ export function ProfileForm({
   onDirtyChange,
   onSubmit,
 }: ProfileFormProps) {
-  const initialValues = useMemo(() => toFormValues(profile), [profile]);
-  const [showSecrets, setShowSecrets] = useState(false);
-  const [generalError, setGeneralError] = useState<string | null>(null);
+  const initialValues = useMemo(() => toFormValues(profile), [profile])
+  const [showSecrets, setShowSecrets] = useState(false)
+  const [generalError, setGeneralError] = useState<string | null>(null)
+  const [advancedExpandedKeys, setAdvancedExpandedKeys] = useState<Set<Key>>(
+    new Set()
+  )
   const inputClassName =
-    "mt-2 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-3 py-2.5 text-sm text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-subtle)] focus:border-[var(--app-border-strong)]";
+    'mt-2 w-full rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-3 py-2.5 text-sm text-[var(--app-text)] outline-none transition placeholder:text-[var(--app-text-subtle)] focus:border-[var(--app-border-strong)]'
 
   const form = useForm({
     defaultValues: initialValues,
     validators: {
       onSubmit: ({ value }) => {
         try {
-          validateProfileInput(value);
+          validateProfileInput(value)
 
-          return undefined;
+          return undefined
         } catch (error) {
           if (error instanceof ZodError) {
-            const fields: Record<string, string> = {};
+            const fields: Record<string, string> = {}
+            let hasAdvancedError = false
 
             for (const issue of error.issues) {
-              const fieldPath = mapZodIssuePath(issue.path);
+              const fieldPath = mapZodIssuePath(issue.path)
 
               if (fieldPath) {
-                fields[fieldPath] = issue.message;
+                fields[fieldPath] = issue.message
+
+                if (advancedEnvKeys.some((k) => fieldPath === `env.${k}`)) {
+                  hasAdvancedError = true
+                }
               }
             }
 
-            return { fields };
+            if (hasAdvancedError) {
+              setAdvancedExpandedKeys(new Set(['advanced']))
+            }
+
+            return { fields }
           }
 
-          return "Validation failed";
+          return 'Validation failed'
         }
       },
     },
     onSubmit: async ({ value }) => {
-      setGeneralError(null);
+      setGeneralError(null)
 
       try {
-        const payload = validateProfileInput(value);
+        const payload = validateProfileInput(value)
 
-        await onSubmit(payload);
+        await onSubmit(payload)
       } catch (error) {
-        setGeneralError(error instanceof Error ? error.message : "Failed to save profile.");
+        setGeneralError(
+          error instanceof Error ? error.message : 'Failed to save profile.'
+        )
       }
     },
-  });
+  })
 
   useEffect(() => {
-    form.reset();
-    setGeneralError(null);
-  }, [initialValues, form]);
+    form.reset()
+    setGeneralError(null)
+  }, [initialValues, form])
 
-  const formValues = useStore(form.store, (state) => state.values);
+  const formValues = useStore(form.store, (state) => state.values)
 
   const isDirty = useMemo(() => {
     return (
       JSON.stringify(normalizeProfileInput(formValues)) !==
       JSON.stringify(normalizeProfileInput(initialValues))
-    );
-  }, [formValues, initialValues]);
+    )
+  }, [formValues, initialValues])
 
-  const bothCredentialsSet = useStore(form.store, (state) => hasBothCredentials(state.values.env));
+  const bothCredentialsSet = useStore(form.store, (state) =>
+    hasBothCredentials(state.values.env)
+  )
 
   useEffect(() => {
-    onDirtyChange(isDirty);
-  }, [isDirty, onDirtyChange]);
+    onDirtyChange(isDirty)
+  }, [isDirty, onDirtyChange])
 
   return (
     <Card className="border border-[var(--app-border)] bg-[var(--app-surface)] shadow-none">
@@ -159,21 +200,27 @@ export function ProfileForm({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--app-text-subtle)]">
-              {mode === "create" ? "New profile" : "Edit profile"}
+              {mode === 'create' ? 'New profile' : 'Edit profile'}
             </p>
             <h2 className="mt-1.5 text-2xl font-semibold text-[var(--app-text)]">
-              {mode === "create" ? "Create a profile" : `Edit ${profile?.name ?? "profile"}`}
+              {mode === 'create'
+                ? 'Create a profile'
+                : `Edit ${profile?.name ?? 'profile'}`}
             </h2>
           </div>
           <Button
             variant="secondary"
             onPress={() => {
-              setShowSecrets((current) => !current);
+              setShowSecrets((current) => !current)
             }}
           >
             <span className="flex items-center gap-2">
-              {showSecrets ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              <span>{showSecrets ? "Hide secrets" : "Show secrets"}</span>
+              {showSecrets ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+              <span>{showSecrets ? 'Hide secrets' : 'Show secrets'}</span>
             </span>
           </Button>
         </div>
@@ -181,11 +228,11 @@ export function ProfileForm({
         <Form
           validationBehavior="aria"
           onSubmit={(event) => {
-            event.preventDefault();
-            void form.handleSubmit();
+            event.preventDefault()
+            void form.handleSubmit()
           }}
         >
-          <div className="w-full space-y-4">
+          <div className="w-full space-y-6">
             <form.Field
               name="name"
               children={(field) => (
@@ -195,7 +242,9 @@ export function ProfileForm({
                   onBlur={() => field.handleBlur()}
                   onChange={(val) => field.handleChange(val)}
                 >
-                  <Label className="text-sm font-medium text-[var(--app-text)]">Profile name</Label>
+                  <Label className="text-sm font-medium text-[var(--app-text)]">
+                    Profile name
+                  </Label>
                   <Input className={inputClassName} type="text" />
                   <FieldError className="mt-2 text-sm text-rose-300">
                     {field.state.meta.errors[0]}
@@ -204,72 +253,154 @@ export function ProfileForm({
               )}
             />
 
-            <div className="space-y-3">
-              <p
-                className={`text-xs ${bothCredentialsSet ? "text-rose-300" : "text-[var(--app-text-subtle)]"}`}
-              >
-                Provide either an API key or an auth token — at least one is required, but not both.
-              </p>
-              <div className="grid gap-3 lg:grid-cols-2">
-                {managedEnvKeys.map((key) => (
-                  <form.Field
-                    key={key}
-                    name={`env.${key}` as `env.${ManagedEnvKey}`}
-                    validators={{
-                      onChange: ({ value, fieldApi }) => {
-                        if (key === "ANTHROPIC_BASE_URL") {
-                          const trimmed = value.trim();
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <p
+                  className={`text-xs ${bothCredentialsSet ? 'text-rose-300' : 'text-[var(--app-text-subtle)]'}`}
+                >
+                  Provide either an API key or an auth token — at least one is
+                  required, but not both.
+                </p>
+                <div className="grid gap-x-5 gap-y-3 lg:grid-cols-2">
+                  {basicEnvKeys.map((key) => (
+                    <form.Field
+                      key={key}
+                      name={`env.${key}` as `env.${ManagedEnvKey}`}
+                      validators={{
+                        onChange: ({ value, fieldApi }) => {
+                          if (key === 'ANTHROPIC_BASE_URL') {
+                            const trimmed = value.trim()
 
-                          if (trimmed && !isValidUrl(trimmed)) {
-                            return "Base URL must be a valid URL.";
+                            if (trimmed && !isValidUrl(trimmed)) {
+                              return 'Base URL must be a valid URL.'
+                            }
                           }
-                        }
 
-                        if (
-                          key === "ANTHROPIC_AUTH_TOKEN" ||
-                          key === "ANTHROPIC_API_KEY"
-                        ) {
-                          const otherKey =
-                            key === "ANTHROPIC_AUTH_TOKEN"
-                              ? "env.ANTHROPIC_API_KEY"
-                              : "env.ANTHROPIC_AUTH_TOKEN";
-                          const otherValue = fieldApi.form.getFieldValue(
-                            otherKey as `env.${ManagedEnvKey}`,
-                          );
+                          if (
+                            key === 'ANTHROPIC_AUTH_TOKEN' ||
+                            key === 'ANTHROPIC_API_KEY'
+                          ) {
+                            const otherKey =
+                              key === 'ANTHROPIC_AUTH_TOKEN'
+                                ? 'env.ANTHROPIC_API_KEY'
+                                : 'env.ANTHROPIC_AUTH_TOKEN'
+                            const otherValue = fieldApi.form.getFieldValue(
+                              otherKey as `env.${ManagedEnvKey}`
+                            )
 
-                          if (value.trim() && otherValue?.trim()) {
-                            return "Cannot set both API key and auth token.";
+                            if (value.trim() && otherValue?.trim()) {
+                              return 'Cannot set both API key and auth token.'
+                            }
                           }
-                        }
 
-                        return undefined;
-                      },
-                      onChangeListenTo:
-                        key === "ANTHROPIC_AUTH_TOKEN"
-                          ? (["env.ANTHROPIC_API_KEY"] as `env.${ManagedEnvKey}`[])
-                          : key === "ANTHROPIC_API_KEY"
-                            ? (["env.ANTHROPIC_AUTH_TOKEN"] as `env.${ManagedEnvKey}`[])
-                            : [],
-                    }}
-                    children={(field) => (
-                      <TextField
-                        isInvalid={field.state.meta.errors.length > 0}
-                        value={field.state.value}
-                        onBlur={() => field.handleBlur()}
-                        onChange={(val) => field.handleChange(val)}
-                      >
-                        <Label className="text-sm font-medium text-[var(--app-text)]">
-                          {managedKeyLabels[key]}
-                        </Label>
-                        <Input className={inputClassName} type={getFieldType(key, showSecrets)} />
-                        <FieldError className="mt-2 text-sm text-rose-300">
-                          {field.state.meta.errors[0]}
-                        </FieldError>
-                      </TextField>
-                    )}
-                  />
-                ))}
+                          return undefined
+                        },
+                        onChangeListenTo:
+                          key === 'ANTHROPIC_AUTH_TOKEN'
+                            ? ([
+                                'env.ANTHROPIC_API_KEY',
+                              ] as `env.${ManagedEnvKey}`[])
+                            : key === 'ANTHROPIC_API_KEY'
+                              ? ([
+                                  'env.ANTHROPIC_AUTH_TOKEN',
+                                ] as `env.${ManagedEnvKey}`[])
+                              : [],
+                      }}
+                      children={(field) => (
+                        <TextField
+                          isInvalid={field.state.meta.errors.length > 0}
+                          value={field.state.value}
+                          onBlur={() => field.handleBlur()}
+                          onChange={(val) => field.handleChange(val)}
+                        >
+                          <Label className="text-sm font-medium text-[var(--app-text)]">
+                            {managedKeyLabels[key]}
+                          </Label>
+                          <Input
+                            className={inputClassName}
+                            type={getFieldType(key, showSecrets)}
+                          />
+                          <FieldError className="mt-2 text-sm text-rose-300">
+                            {field.state.meta.errors[0]}
+                          </FieldError>
+                        </TextField>
+                      )}
+                    />
+                  ))}
+                </div>
               </div>
+
+              <Accordion
+                expandedKeys={advancedExpandedKeys}
+                hideSeparator
+                variant="surface"
+                onExpandedChange={setAdvancedExpandedKeys}
+              >
+                <Accordion.Item id="advanced">
+                  <Accordion.Heading>
+                    <Accordion.Trigger className="text-sm font-medium text-[var(--app-text)]">
+                      Advanced settings
+                      <Accordion.Indicator>
+                        <ChevronDown className="h-4 w-4" />
+                      </Accordion.Indicator>
+                    </Accordion.Trigger>
+                  </Accordion.Heading>
+                  <Accordion.Panel>
+                    <Accordion.Body>
+                      <div className="grid gap-5">
+                        {advancedEnvKeys.map((key) => (
+                          <form.Field
+                            key={key}
+                            name={`env.${key}` as `env.${ManagedEnvKey}`}
+                            validators={{
+                              onChange: ({ value }) => {
+                                const trimmed = value.trim()
+
+                                if (!trimmed) return undefined
+
+                                if (key === 'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE') {
+                                  if (!isValidIntegerInRange(trimmed, 1, 100)) {
+                                    return 'Must be an integer between 1 and 100.'
+                                  }
+                                } else if (!isValidIntegerInRange(trimmed, 1)) {
+                                  return 'Must be a positive integer.'
+                                }
+
+                                return undefined
+                              },
+                            }}
+                            children={(field) => (
+                              <TextField
+                                isInvalid={field.state.meta.errors.length > 0}
+                                value={field.state.value}
+                                onBlur={() => field.handleBlur()}
+                                onChange={(val) => field.handleChange(val)}
+                              >
+                                <Label className="text-sm font-medium text-[var(--app-text)]">
+                                  {managedKeyLabels[key]}
+                                </Label>
+                                {managedKeyDescriptions[key] ? (
+                                  <p className="mt-1 text-xs leading-5 text-[var(--app-text-subtle)]">
+                                    {renderDescription(managedKeyDescriptions[key])}
+                                  </p>
+                                ) : null}
+                                <Input
+                                  className={inputClassName}
+                                  inputMode="numeric"
+                                  type="text"
+                                />
+                                <FieldError className="mt-2 text-sm text-rose-300">
+                                  {field.state.meta.errors[0]}
+                                </FieldError>
+                              </TextField>
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </Accordion.Body>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
             </div>
 
             {generalError ? (
@@ -294,10 +425,10 @@ export function ProfileForm({
                       <Save className="h-4 w-4" />
                       <span>
                         {isSaving
-                          ? "Saving\u2026"
-                          : mode === "create"
-                            ? "Create profile"
-                            : "Save changes"}
+                          ? 'Saving\u2026'
+                          : mode === 'create'
+                            ? 'Create profile'
+                            : 'Save changes'}
                       </span>
                     </span>
                   </Button>
@@ -308,5 +439,5 @@ export function ProfileForm({
         </Form>
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -1,10 +1,4 @@
-import type {
-  BackupEntry,
-  ClaudeSettingsSnapshot,
-  DesktopApi,
-  ImportResult,
-  SwitchResult,
-} from "@/shared/ipc";
+import type { BackupEntry, ClaudeSettingsSnapshot, DesktopApi, SwitchResult } from "@/shared/ipc";
 import type { Preferences } from "@/shared/preferences";
 import type { ManagedEnv, Profile, ProfileInput } from "@/shared/profiles";
 import { normalizeManagedEnv, normalizeProfileInput } from "@/shared/schema";
@@ -14,7 +8,6 @@ type MockOptions = {
   activeProfileId?: string | null;
   managedEnv?: ManagedEnv;
   unmanagedKeys?: string[];
-  importResult?: ImportResult;
   path?: string;
   preferences?: Preferences;
 };
@@ -31,21 +24,13 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
   let preferences: Preferences = options.preferences ?? { theme: "dark" };
   const path = options.path ?? "/Users/test/.claude/settings.json";
   const unmanagedKeys = options.unmanagedKeys ?? ["permissions", "hooks"];
-  const importResult =
-    options.importResult ??
-    (profiles.length > 0
-      ? {
-          status: "existing" as const,
-        }
-      : {
-          status: "empty" as const,
-        });
 
   const createSnapshot = (): ClaudeSettingsSnapshot => ({
     path,
     exists: profiles.length > 0 || Object.keys(managedEnv).length > 0,
     managedEnv: structuredClone(managedEnv),
     unmanagedKeys,
+    hasModelOverride: false,
     backups: backups.map(({ id, createdAt }) => ({
       id,
       createdAt,
@@ -58,7 +43,6 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
       return {
         profiles: structuredClone(profiles),
         activeProfileId,
-        importResult,
         settingsSnapshot: createSnapshot(),
         preferences: structuredClone(preferences),
       };

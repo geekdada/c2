@@ -25,6 +25,71 @@ describe("schema helpers", () => {
     ).toThrowError(/API key or auth token/i);
   });
 
+  it("trims advanced env keys in normalizeManagedEnv", () => {
+    expect(
+      normalizeManagedEnv({
+        ANTHROPIC_API_KEY: "key-123",
+        CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "  50  ",
+        CLAUDE_CODE_AUTO_COMPACT_WINDOW: " 500000 ",
+        CLAUDE_CODE_MAX_OUTPUT_TOKENS: "  ",
+      }),
+    ).toEqual({
+      ANTHROPIC_API_KEY: "key-123",
+      CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "50",
+      CLAUDE_CODE_AUTO_COMPACT_WINDOW: "500000",
+    });
+  });
+
+  it("accepts valid numeric strings for advanced keys", () => {
+    expect(() =>
+      validateProfileInput({
+        name: "With advanced",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "50",
+          CLAUDE_CODE_AUTO_COMPACT_WINDOW: "500000",
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: "16384",
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects non-integer value for auto-compact threshold", () => {
+    expect(() =>
+      validateProfileInput({
+        name: "Bad pct",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "abc",
+        },
+      }),
+    ).toThrowError(/integer between 1 and 100/i);
+  });
+
+  it("rejects out-of-range value for auto-compact threshold", () => {
+    expect(() =>
+      validateProfileInput({
+        name: "Bad pct",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: "101",
+        },
+      }),
+    ).toThrowError(/integer between 1 and 100/i);
+  });
+
+  it("rejects non-positive value for max output tokens", () => {
+    expect(() =>
+      validateProfileInput({
+        name: "Bad tokens",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_CODE_MAX_OUTPUT_TOKENS: "0",
+        },
+      }),
+    ).toThrowError(/positive integer/i);
+  });
+
   it("detects added, updated, and removed managed env keys", () => {
     expect(
       diffManagedEnv(

@@ -43,6 +43,39 @@ export const managedEnvSchema = managedEnvBaseSchema.superRefine((env, ctx) => {
       message: 'Base URL must be a valid URL.',
     })
   }
+
+  if (
+    env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE?.trim() &&
+    !isValidIntegerInRange(env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE.trim(), 1, 100)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CLAUDE_AUTOCOMPACT_PCT_OVERRIDE'],
+      message: 'Must be an integer between 1 and 100.',
+    })
+  }
+
+  if (
+    env.CLAUDE_CODE_AUTO_COMPACT_WINDOW?.trim() &&
+    !isValidIntegerInRange(env.CLAUDE_CODE_AUTO_COMPACT_WINDOW.trim(), 1)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CLAUDE_CODE_AUTO_COMPACT_WINDOW'],
+      message: 'Must be a positive integer.',
+    })
+  }
+
+  if (
+    env.CLAUDE_CODE_MAX_OUTPUT_TOKENS?.trim() &&
+    !isValidIntegerInRange(env.CLAUDE_CODE_MAX_OUTPUT_TOKENS.trim(), 1)
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CLAUDE_CODE_MAX_OUTPUT_TOKENS'],
+      message: 'Must be a positive integer.',
+    })
+  }
 })
 
 export const profileInputSchema = z.object({
@@ -77,6 +110,16 @@ export const appStateSchema = z
 
 export function isValidUrl(value: string): boolean {
   return z.url().safeParse(value).success
+}
+
+export function isValidIntegerInRange(
+  value: string,
+  min: number,
+  max?: number
+): boolean {
+  const num = Number(value)
+
+  return Number.isInteger(num) && num >= min && (max === undefined || num <= max)
 }
 
 export function hasCredential(env: ManagedEnv): boolean {
@@ -119,6 +162,27 @@ export function sanitizeManagedEnvForImport(
     !isValidUrl(normalized.ANTHROPIC_BASE_URL)
   ) {
     delete normalized.ANTHROPIC_BASE_URL
+  }
+
+  if (
+    normalized.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE &&
+    !isValidIntegerInRange(normalized.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE, 1, 100)
+  ) {
+    delete normalized.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE
+  }
+
+  if (
+    normalized.CLAUDE_CODE_AUTO_COMPACT_WINDOW &&
+    !isValidIntegerInRange(normalized.CLAUDE_CODE_AUTO_COMPACT_WINDOW, 1)
+  ) {
+    delete normalized.CLAUDE_CODE_AUTO_COMPACT_WINDOW
+  }
+
+  if (
+    normalized.CLAUDE_CODE_MAX_OUTPUT_TOKENS &&
+    !isValidIntegerInRange(normalized.CLAUDE_CODE_MAX_OUTPUT_TOKENS, 1)
+  ) {
+    delete normalized.CLAUDE_CODE_MAX_OUTPUT_TOKENS
   }
 
   return normalized

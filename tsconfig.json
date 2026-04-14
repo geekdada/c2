@@ -2,7 +2,11 @@
   "compilerOptions": {
     "target": "ES2022",
     "useDefineForClassFields": true,
-    "lib": ["DOM", "DOM.Iterable", "ES2023"],
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ES2023"
+    ],
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -16,10 +20,23 @@
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": ["node", "vite/client", "vitest/globals"],
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals"
+    ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["src", "electron", "vite.config.ts", "playwright.config.ts", "vitest.setup.ts"]
+  "include": [
+    "e2e",
+    "src",
+    "electron",
+    "vite.config.ts",
+    "playwright.config.ts",
+    "vitest.setup.ts"
+  ]
 }

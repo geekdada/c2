@@ -1,8 +1,7 @@
-import { Button, Card, CardContent } from "@heroui/react";
+import { Button, Card, CardContent, Toast } from "@heroui/react";
 import { useEffect } from "react";
 
 import { BrandBadge } from "@/components/layout/BrandBadge";
-import { ToastRegion } from "@/components/layout/ToastRegion";
 
 import { AppRouter } from "./router";
 import { useProfilesStore } from "./store/profiles";
@@ -80,11 +79,9 @@ export default function App() {
         ) : error && profiles.length === 0 && !settingsSnapshot ? (
           <FatalErrorScreen />
         ) : (
-          <>
-            <AppRouter />
-            <ToastRegion />
-          </>
+          <AppRouter />
         )}
+        <Toast.Provider placement="top end" width={360} />
       </div>
     </div>
   );

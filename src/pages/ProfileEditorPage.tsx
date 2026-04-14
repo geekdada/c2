@@ -1,10 +1,9 @@
-import { Button, Card, CardContent } from "@heroui/react";
+import { Button, Card, CardContent, toast } from "@heroui/react";
 import { ArrowLeft, TriangleAlert } from "lucide-react";
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useProfilesStore } from "@/app/store/profiles";
-import { useUiStore } from "@/app/store/ui";
 import { ProfileForm } from "@/features/profile-form/ProfileForm";
 
 export function ProfileEditorPage() {
@@ -15,7 +14,6 @@ export function ProfileEditorPage() {
   const createProfile = useProfilesStore((state) => state.createProfile);
   const updateProfile = useProfilesStore((state) => state.updateProfile);
   const setDirtyProfileId = useProfilesStore((state) => state.setDirtyProfileId);
-  const pushToast = useUiStore((state) => state.pushToast);
 
   const profile = useMemo(() => profiles.find((candidate) => candidate.id === id), [id, profiles]);
   const mode = id ? "edit" : "create";
@@ -86,19 +84,17 @@ export function ProfileEditorPage() {
           if (mode === "create") {
             const createdProfile = await createProfile(input);
 
-            pushToast({
-              tone: "success",
-              title: `Created ${createdProfile.name}`,
+            toast.success(`Created ${createdProfile.name}`, {
               description:
                 "Activate it from the profile list when you're ready to write it into Claude settings.",
+              timeout: 3600,
             });
           } else if (profile) {
             const updatedProfile = await updateProfile(profile.id, input);
 
-            pushToast({
-              tone: "success",
-              title: `Saved ${updatedProfile.name}`,
+            toast.success(`Saved ${updatedProfile.name}`, {
               description: "Your local profile changes are ready for the next switch.",
+              timeout: 3600,
             });
           }
 

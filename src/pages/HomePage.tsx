@@ -1,4 +1,4 @@
-import { Button, Card, CardContent } from "@heroui/react";
+import { Button, Card, CardContent, toast } from "@heroui/react";
 import { TriangleAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -23,7 +23,6 @@ export function HomePage() {
   const closeSwitchModal = useUiStore((state) => state.closeSwitchModal);
   const openDeleteModal = useUiStore((state) => state.openDeleteModal);
   const closeDeleteModal = useUiStore((state) => state.closeDeleteModal);
-  const pushToast = useUiStore((state) => state.pushToast);
 
   const switchTarget = profiles.find((profile) => profile.id === switchProfileId) ?? null;
   const deleteTarget = profiles.find((profile) => profile.id === deleteProfileId) ?? null;
@@ -70,10 +69,9 @@ export function HomePage() {
 
           await switchProfile(switchTarget.id);
           closeSwitchModal();
-          pushToast({
-            tone: "success",
-            title: `Activated ${switchTarget.name}`,
+          toast.success(`Activated ${switchTarget.name}`, {
             description: "Claude settings now reflect the selected managed env values.",
+            timeout: 3600,
           });
         }}
       />
@@ -91,10 +89,9 @@ export function HomePage() {
 
           await deleteProfile(deleteTarget.id);
           closeDeleteModal();
-          pushToast({
-            tone: "info",
-            title: `Deleted ${deleteTarget.name}`,
+          toast.info(`Deleted ${deleteTarget.name}`, {
             description: "The local profile record was removed.",
+            timeout: 3600,
           });
         }}
       />

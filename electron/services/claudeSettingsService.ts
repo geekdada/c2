@@ -44,6 +44,9 @@ export function applyProfile(
 ): ClaudeSettingsData {
   const validatedProfile = validateStoredProfile(profile);
   const nextSettings = structuredClone(existingSettings);
+
+  delete nextSettings.model;
+
   const nextEnv = isRecord(nextSettings.env) ? { ...nextSettings.env } : {};
 
   for (const key of managedEnvKeys) {
@@ -112,6 +115,7 @@ export async function readClaudeSettingsSnapshot(paths: AppPaths): Promise<Claud
       exists: false,
       managedEnv: {},
       unmanagedKeys: [],
+      hasModelOverride: false,
       backups,
       error: null,
     };
@@ -128,6 +132,7 @@ export async function readClaudeSettingsSnapshot(paths: AppPaths): Promise<Claud
       exists: true,
       managedEnv: extractManagedEnv(parsed),
       unmanagedKeys,
+      hasModelOverride: typeof parsed.model === "string",
       backups,
       error: null,
     };
@@ -137,6 +142,7 @@ export async function readClaudeSettingsSnapshot(paths: AppPaths): Promise<Claud
       exists: true,
       managedEnv: {},
       unmanagedKeys: [],
+      hasModelOverride: false,
       backups,
       error: error instanceof Error ? error.message : "Unknown settings error.",
     };

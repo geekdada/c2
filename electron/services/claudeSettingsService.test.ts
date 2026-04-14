@@ -40,4 +40,31 @@ describe("applyProfile", () => {
       },
     });
   });
+
+  it("removes the top-level model override", () => {
+    const result = applyProfile(
+      {
+        model: "claude-sonnet-4-5-20250514",
+        env: {
+          ANTHROPIC_API_KEY: "old-key",
+        },
+      },
+      {
+        id: "profile-1",
+        name: "Work",
+        env: {
+          ANTHROPIC_API_KEY: "new-key",
+        },
+        createdAt: "2026-04-13T00:00:00.000Z",
+        updatedAt: "2026-04-13T00:00:00.000Z",
+      },
+    );
+
+    expect(result.model).toBeUndefined();
+    expect(result).toEqual({
+      env: {
+        ANTHROPIC_API_KEY: "new-key",
+      },
+    });
+  });
 });

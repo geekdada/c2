@@ -1,3 +1,9 @@
+## [0.2.2](https://github.com/royli/c2-app/compare/v0.2.1...v0.2.2) (2026-04-15)
+
+
+### Bug Fixes
+
+* **electron:** inline squirrel startup handling ([15d1aef](https://github.com/royli/c2-app/commit/15d1aefc1f34ad3bf86a526f7d7c8d364d34aeda))
 
 ## [0.2.1](https://github.com/royli/c2-app/compare/v0.2.0...v0.2.1) (2026-04-15)
 

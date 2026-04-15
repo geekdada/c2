@@ -4,7 +4,7 @@ import type { Preferences } from "../../src/shared/preferences";
 import { writeJsonAtomic } from "./fileUtils";
 import type { AppPaths } from "./paths";
 
-const defaultPreferences: Preferences = { theme: "dark" };
+const defaultPreferences: Preferences = { theme: "system" };
 
 export async function readPreferences(paths: AppPaths): Promise<Preferences> {
   try {

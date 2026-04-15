@@ -24,7 +24,7 @@ type UiState = {
 
 export const useUiStore = create<UiState>((set) => ({
   currentSidebarKey: "profiles",
-  theme: "dark",
+  theme: "system",
   hasCompletedOnboarding: false,
   showOnboarding: false,
   modals: {

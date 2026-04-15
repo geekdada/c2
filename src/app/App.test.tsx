@@ -34,7 +34,7 @@ function resetStores() {
 
   useUiStore.setState({
     currentSidebarKey: "profiles",
-    theme: "dark",
+    theme: "system",
     hasCompletedOnboarding: false,
     modals: {
       switchProfileId: null,

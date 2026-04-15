@@ -21,7 +21,7 @@ export function createMockDesktopApi(options: MockOptions = {}): DesktopApi {
   let activeProfileId = options.activeProfileId ?? null;
   let managedEnv = normalizeManagedEnv(options.managedEnv ?? {});
   let backups: MockBackup[] = [];
-  let preferences: Preferences = options.preferences ?? { theme: "dark" };
+  let preferences: Preferences = options.preferences ?? { theme: "system" };
   const path = options.path ?? "/Users/test/.claude/settings.json";
   const unmanagedKeys = options.unmanagedKeys ?? ["permissions", "hooks"];
 

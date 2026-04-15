@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
           profiles: [],
           activeProfileId: null,
           settingsSnapshot: emptySnapshot,
-          preferences: { theme: "dark" },
+          preferences: { theme: "system" },
         };
       },
       async getProfiles() {
@@ -49,7 +49,7 @@ test.beforeEach(async ({ page }) => {
       },
       async restoreBackup() {},
       async getPreferences() {
-        return { theme: "dark" };
+        return { theme: "system" };
       },
       async savePreferences() {},
       async checkForUpdate() {},

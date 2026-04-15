@@ -256,5 +256,5 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
 }));
 
 export function sortProfiles(profiles: Profile[]): Profile[] {
-  return [...profiles].sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+  return [...profiles].sort((left, right) => right.createdAt.localeCompare(left.createdAt));
 }

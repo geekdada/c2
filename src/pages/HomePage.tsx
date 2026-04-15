@@ -17,6 +17,7 @@ export function HomePage() {
   const error = useProfilesStore((state) => state.error);
   const switchProfile = useProfilesStore((state) => state.switchProfile);
   const deleteProfile = useProfilesStore((state) => state.deleteProfile);
+  const duplicateProfile = useProfilesStore((state) => state.duplicateProfile);
   const switchProfileId = useUiStore((state) => state.modals.switchProfileId);
   const deleteProfileId = useUiStore((state) => state.modals.deleteProfileId);
   const openSwitchModal = useUiStore((state) => state.openSwitchModal);
@@ -49,6 +50,13 @@ export function HomePage() {
         }}
         onDelete={(profileId) => {
           openDeleteModal(profileId);
+        }}
+        onDuplicate={async (profileId) => {
+          const profile = await duplicateProfile(profileId);
+          toast.success(`Duplicated as ${profile.name}`, {
+            description: "A full copy of the profile has been created.",
+            timeout: 3600,
+          });
         }}
         onEdit={(profileId) => {
           navigate(`/profiles/${profileId}`);

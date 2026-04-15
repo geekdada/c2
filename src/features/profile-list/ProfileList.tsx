@@ -1,5 +1,5 @@
 import { Button, Card, CardContent, CardFooter, CardHeader } from "@heroui/react";
-import { ArrowRightLeft, Pencil, Trash2 } from "lucide-react";
+import { ArrowRightLeft, Copy, Pencil, Trash2 } from "lucide-react";
 
 import { sortProfiles } from "@/app/store/profiles";
 import { advancedEnvKeys, managedEnvKeys, managedKeyLabels, type Profile } from "@/shared/profiles";
@@ -12,6 +12,7 @@ type ProfileListProps = {
   activeProfileId: string | null;
   onActivate: (profileId: string) => void;
   onEdit: (profileId: string) => void;
+  onDuplicate: (profileId: string) => void;
   onDelete: (profileId: string) => void;
 };
 
@@ -34,6 +35,7 @@ export function ProfileList({
   activeProfileId,
   onActivate,
   onEdit,
+  onDuplicate,
   onDelete,
 }: ProfileListProps) {
   if (profiles.length === 0) {
@@ -127,6 +129,17 @@ export function ProfileList({
                 <span className="flex items-center gap-2">
                   <Pencil className="h-4 w-4" />
                   <span>Edit</span>
+                </span>
+              </Button>
+              <Button
+                variant="secondary"
+                onPress={() => {
+                  onDuplicate(profile.id);
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <Copy className="h-4 w-4" />
+                  <span>Duplicate</span>
                 </span>
               </Button>
               <Button

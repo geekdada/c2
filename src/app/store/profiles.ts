@@ -22,6 +22,7 @@ type ProfilesState = {
   refreshSettingsSnapshot: () => Promise<ClaudeSettingsSnapshot>;
   createProfile: (input: ProfileInput) => Promise<Profile>;
   updateProfile: (profileId: string, input: ProfileInput) => Promise<Profile>;
+  duplicateProfile: (profileId: string) => Promise<Profile>;
   deleteProfile: (profileId: string) => Promise<void>;
   switchProfile: (profileId: string) => Promise<SwitchResult>;
   restoreBackup: (backupId: string) => Promise<void>;
@@ -144,6 +145,18 @@ export const useProfilesStore = create<ProfilesState>((set, get) => ({
 
       throw error;
     }
+  },
+  async duplicateProfile(profileId) {
+    const source = get().profiles.find((p) => p.id === profileId);
+
+    if (!source) {
+      throw new Error("Profile not found.");
+    }
+
+    return get().createProfile({
+      name: `Copy of ${source.name}`,
+      env: { ...source.env },
+    });
   },
   async deleteProfile(profileId) {
     set({

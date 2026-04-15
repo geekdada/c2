@@ -1,7 +1,18 @@
 {
-  "name": "claude-profile-manager",
+  "name": "c2-app",
   "version": "0.1.0",
   "private": true,
+  "description": "Desktop app for managing multiple Anthropic API credential profiles",
+  "homepage": "https://github.com/royli/c2-app",
+  "bugs": {
+    "url": "https://github.com/royli/c2-app/issues"
+  },
+  "license": "MIT",
+  "author": "Roy Li <me@royli.dev>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/royli/c2-app.git"
+  },
   "type": "module",
   "main": ".vite/build/main.js",
   "scripts": {

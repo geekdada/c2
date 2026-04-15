@@ -1,6 +1,6 @@
 {
   "name": "c2-app",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Desktop app for managing multiple Anthropic API credential profiles",
   "homepage": "https://github.com/royli/c2-app",

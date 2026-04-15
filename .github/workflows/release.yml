@@ -44,6 +44,7 @@ jobs:
           files: |
             out/make/**/*.dmg
             out/make/**/*.zip
+            out/make/**/RELEASES
             out/make/**/*.exe
             out/make/**/*.nupkg
             out/make/**/*.deb

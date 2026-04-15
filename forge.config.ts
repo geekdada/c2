@@ -25,6 +25,24 @@ const config: ForgeConfig = {
       platforms: ["darwin"],
       config: {},
     },
+    {
+      name: "@electron-forge/maker-squirrel",
+      config: {
+        name: "C2",
+        setupIcon: "./build/icons/icon.ico",
+      },
+    },
+    {
+      name: "@electron-forge/maker-deb",
+      config: {
+        options: {
+          name: "c2",
+          productName: "C2",
+          icon: "./build/icons/256x256.png",
+          categories: ["Development"],
+        },
+      },
+    },
   ],
   plugins: [
     new VitePlugin({

@@ -13,9 +13,15 @@ declare const MAIN_WINDOW_VITE_NAME: string;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const preload = path.join(__dirname, "preload.cjs");
+function getIconFilename(): string {
+  if (process.platform === "win32") return "icon.ico";
+  if (process.platform === "darwin") return "icon.icns";
+  return "256x256.png";
+}
+
 const iconPath = app.isPackaged
-  ? path.join(process.resourcesPath, "icon.icns")
-  : path.join(__dirname, "../../build/icons/icon.icns");
+  ? path.join(process.resourcesPath, getIconFilename())
+  : path.join(__dirname, "../../build/icons", getIconFilename());
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -27,7 +33,7 @@ async function createMainWindow(): Promise<void> {
     minHeight: 760,
     backgroundColor: "#09090b",
     title: "C2",
-    titleBarStyle: "hiddenInset",
+    ...(process.platform === "darwin" && { titleBarStyle: "hiddenInset" as const }),
     icon: nativeImage.createFromPath(iconPath),
     webPreferences: {
       preload,

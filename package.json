@@ -14,6 +14,7 @@
     "format:check": "pnpm format --check",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "release": "bumpp",
     "prepare": "husky"
   },
   "dependencies": {
@@ -31,7 +32,9 @@
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
     "@electron-forge/maker-dmg": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
     "@electron-forge/maker-zip": "^7.11.1",
     "@electron-forge/plugin-vite": "^7.11.1",
     "@playwright/test": "^1.59.1",
@@ -43,6 +46,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "bumpp": "^11.0.1",
     "electron": "^41.2.0",
     "husky": "^9.1.7",
     "jsdom": "^29.0.2",
@@ -61,6 +65,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "electron",
+      "electron-winstaller",
       "fs-xattr",
       "macos-alias"
     ]

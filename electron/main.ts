@@ -1,10 +1,8 @@
+import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { app, BrowserWindow, nativeImage, shell } from "electron";
-import started from "electron-squirrel-startup";
-
-if (started) app.quit();
 
 import { registerPreferencesIpcHandlers } from "./ipc/preferences";
 import { registerProfileIpcHandlers } from "./ipc/profiles";
@@ -17,6 +15,38 @@ declare const MAIN_WINDOW_VITE_NAME: string;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const preload = path.join(__dirname, "preload.cjs");
+
+function handleSquirrelEvent(): boolean {
+  if (process.platform !== "win32") return false;
+
+  const command = process.argv[1];
+  const target = path.basename(process.execPath);
+  const updateExe = path.resolve(path.dirname(process.execPath), "..", "Update.exe");
+
+  if (command === "--squirrel-install" || command === "--squirrel-updated") {
+    spawn(updateExe, [`--createShortcut=${target}`], { detached: true }).on("close", () => {
+      app.quit();
+    });
+    return true;
+  }
+
+  if (command === "--squirrel-uninstall") {
+    spawn(updateExe, [`--removeShortcut=${target}`], { detached: true }).on("close", () => {
+      app.quit();
+    });
+    return true;
+  }
+
+  if (command === "--squirrel-obsolete") {
+    app.quit();
+    return true;
+  }
+
+  return false;
+}
+
+const squirrelEventHandled = handleSquirrelEvent();
+
 function getIconFilename(): string {
   if (process.platform === "win32") return "icon.ico";
   if (process.platform === "darwin") return "icon.icns";
@@ -65,28 +95,30 @@ async function createMainWindow(): Promise<void> {
   });
 }
 
-app.whenReady().then(async () => {
-  const paths = createAppPaths(app.getPath("home"));
+if (!squirrelEventHandled) {
+  app.whenReady().then(async () => {
+    const paths = createAppPaths(app.getPath("home"));
 
-  if (process.platform === "darwin") {
-    app.dock?.setIcon(nativeImage.createFromPath(iconPath));
-  }
-
-  registerPreferencesIpcHandlers(paths);
-  registerProfileIpcHandlers(paths);
-  registerSettingsIpcHandlers(paths);
-  await createMainWindow();
-
-  if (mainWindow) {
-    registerUpdaterIpcHandlers(mainWindow);
-  }
-
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      void createMainWindow();
+    if (process.platform === "darwin") {
+      app.dock?.setIcon(nativeImage.createFromPath(iconPath));
     }
+
+    registerPreferencesIpcHandlers(paths);
+    registerProfileIpcHandlers(paths);
+    registerSettingsIpcHandlers(paths);
+    await createMainWindow();
+
+    if (mainWindow) {
+      registerUpdaterIpcHandlers(mainWindow);
+    }
+
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        void createMainWindow();
+      }
+    });
   });
-});
+}
 
 app.on("window-all-closed", () => {
   mainWindow = null;

@@ -36,6 +36,13 @@ Download the latest installer for your platform from the [Releases page](https:/
 - **Windows** — Squirrel installer (`.exe`)
 - **Linux** — `.deb`
 
+Or use Homebrew:
+
+```bash
+brew install geekdada/tap/c2 --cask
+xattr -d com.apple.quarantine /Applications/C2.app
+```
+
 ## Data Locations
 
 - `~/.config/c2-app` — Config directory

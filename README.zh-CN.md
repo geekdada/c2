@@ -36,6 +36,13 @@ C2 会在 `~/.claude/settings.json` 中写入以下环境变量：
 - **Windows** — Squirrel 安装包 (`.exe`)
 - **Linux** — `.deb`
 
+或者使用 Homebrew：
+
+```bash
+brew install geekdada/tap/c2 --cask
+xattr -d com.apple.quarantine /Applications/C2.app
+```
+
 ## 数据路径
 
 - `~/.config/c2-app` - 配置文件目录

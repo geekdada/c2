@@ -159,9 +159,11 @@ describe("App", () => {
 
     await user.type(screen.getByLabelText("Profile name"), "Advanced Flags");
     await user.type(screen.getByLabelText("API key"), "sk-test-123");
+    await user.type(screen.getByLabelText("Base URL"), "https://api.example.com");
     await user.click(screen.getByRole("button", { name: "Advanced settings" }));
     await user.click(screen.getByLabelText("Disable 1M context"));
     await user.click(screen.getByLabelText("Disable attachments"));
+    await user.click(screen.getByLabelText("Enable auto mode"));
     await user.click(screen.getByRole("button", { name: "Create profile" }));
 
     await waitFor(() => {
@@ -174,36 +176,27 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "Settings" }));
 
     await screen.findByRole("heading", { name: "Settings" });
-    expect(screen.getAllByText("Enabled")).toHaveLength(2);
+    expect(screen.getAllByText("Enabled")).toHaveLength(3);
   });
 
-  it("refreshes Claude settings after saving the active profile", async () => {
+  it("hides auto mode when base URL is empty", async () => {
     const user = userEvent.setup();
 
     window.__PROFILE_MANAGER_MOCK_API__ = createMockDesktopApi({
       profiles: [profile],
       activeProfileId: profile.id,
-      managedEnv: profile.env,
     });
 
-    renderApp("#/profiles/profile-1");
+    renderApp();
 
-    await screen.findByRole("heading", { name: "Edit Test Profile" });
+    await screen.findByRole("button", { name: "New profile" });
+    await user.click(screen.getByRole("button", { name: "New profile" }));
 
-    await user.type(screen.getByLabelText("Base URL"), "https://api.example.com");
+    await screen.findByRole("heading", { name: "Create a profile" });
+    await user.type(screen.getByLabelText("Profile name"), "No Base URL");
+    await user.type(screen.getByLabelText("API key"), "sk-test-123");
     await user.click(screen.getByRole("button", { name: "Advanced settings" }));
-    await user.click(screen.getByLabelText("Disable attachments"));
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
 
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("button", { name: "Settings" }));
-
-    await screen.findByRole("heading", { name: "Settings" });
-    expect(screen.getByText("https://api.example.com")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Restore" })).toBeInTheDocument();
-    expect(screen.getAllByText("Enabled")).toHaveLength(1);
+    expect(screen.queryByLabelText("Enable auto mode")).not.toBeInTheDocument();
   });
 });

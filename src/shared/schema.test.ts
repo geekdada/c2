@@ -58,6 +58,7 @@ describe("schema helpers", () => {
           CLAUDE_CODE_MAX_OUTPUT_TOKENS: "16384",
           CLAUDE_CODE_DISABLE_1M_CONTEXT: "1",
           CLAUDE_CODE_DISABLE_ATTACHMENTS: "1",
+          CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
         },
       }),
     ).not.toThrow();
@@ -119,6 +120,16 @@ describe("schema helpers", () => {
         },
       }),
     ).toThrowError(/enabled/i);
+
+    expect(() =>
+      validateProfileInput({
+        name: "Bad auto mode",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_CODE_ENABLE_AUTO_MODE: "yes",
+        },
+      }),
+    ).toThrowError(/enabled/i);
   });
 
   it("drops invalid imported advanced values and keeps valid boolean flags", () => {
@@ -130,11 +141,13 @@ describe("schema helpers", () => {
         CLAUDE_CODE_MAX_OUTPUT_TOKENS: "1024",
         CLAUDE_CODE_DISABLE_1M_CONTEXT: "1",
         CLAUDE_CODE_DISABLE_ATTACHMENTS: "true",
+        CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
       }),
     ).toEqual({
       ANTHROPIC_API_KEY: "sk-test-123",
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: "1024",
       CLAUDE_CODE_DISABLE_1M_CONTEXT: "1",
+      CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
     });
   });
 

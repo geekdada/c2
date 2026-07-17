@@ -61,6 +61,10 @@ export function applyProfile(
     }
   }
 
+  if (!validatedProfile.env.ANTHROPIC_BASE_URL?.trim()) {
+    delete nextEnv.CLAUDE_CODE_ENABLE_AUTO_MODE;
+  }
+
   if (Object.keys(nextEnv).length > 0) {
     nextSettings.env = nextEnv;
   } else {

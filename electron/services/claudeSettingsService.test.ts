@@ -70,4 +70,57 @@ describe("applyProfile", () => {
       },
     });
   });
+
+  it("writes auto mode when base URL and flag are both set", () => {
+    const result = applyProfile(
+      {},
+      {
+        id: "profile-1",
+        name: "Work",
+        env: {
+          ANTHROPIC_API_KEY: "new-key",
+          ANTHROPIC_BASE_URL: "https://api.example.com",
+          CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        },
+        createdAt: "2026-04-13T00:00:00.000Z",
+        updatedAt: "2026-04-13T00:00:00.000Z",
+      },
+    );
+
+    expect(result).toEqual({
+      env: {
+        ANTHROPIC_API_KEY: "new-key",
+        ANTHROPIC_BASE_URL: "https://api.example.com",
+        CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+      },
+    });
+  });
+
+  it("clears auto mode when profile has no base URL", () => {
+    const result = applyProfile(
+      {
+        env: {
+          ANTHROPIC_API_KEY: "old-key",
+          ANTHROPIC_BASE_URL: "https://old.example.com",
+          CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        },
+      },
+      {
+        id: "profile-1",
+        name: "Work",
+        env: {
+          ANTHROPIC_API_KEY: "new-key",
+          CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        },
+        createdAt: "2026-04-13T00:00:00.000Z",
+        updatedAt: "2026-04-13T00:00:00.000Z",
+      },
+    );
+
+    expect(result).toEqual({
+      env: {
+        ANTHROPIC_API_KEY: "new-key",
+      },
+    });
+  });
 });

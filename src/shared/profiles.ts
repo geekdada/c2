@@ -10,6 +10,7 @@ export const managedEnvKeys = [
   "CLAUDE_CODE_MAX_OUTPUT_TOKENS",
   "CLAUDE_CODE_DISABLE_1M_CONTEXT",
   "CLAUDE_CODE_DISABLE_ATTACHMENTS",
+  "CLAUDE_CODE_ENABLE_AUTO_MODE",
 ] as const;
 
 export const managedSecretKeys = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"] as const;
@@ -44,6 +45,7 @@ export const advancedEnvKeys: readonly ManagedEnvKey[] = [
   "CLAUDE_CODE_MAX_OUTPUT_TOKENS",
   "CLAUDE_CODE_DISABLE_1M_CONTEXT",
   "CLAUDE_CODE_DISABLE_ATTACHMENTS",
+  "CLAUDE_CODE_ENABLE_AUTO_MODE",
 ];
 
 export const managedKeyLabels: Record<ManagedEnvKey, string> = {
@@ -58,6 +60,7 @@ export const managedKeyLabels: Record<ManagedEnvKey, string> = {
   CLAUDE_CODE_MAX_OUTPUT_TOKENS: "Max output tokens",
   CLAUDE_CODE_DISABLE_1M_CONTEXT: "Disable 1M context",
   CLAUDE_CODE_DISABLE_ATTACHMENTS: "Disable attachments",
+  CLAUDE_CODE_ENABLE_AUTO_MODE: "Enable auto mode",
 };
 
 export const managedKeyDescriptions: Partial<Record<ManagedEnvKey, string>> = {
@@ -71,4 +74,6 @@ export const managedKeyDescriptions: Partial<Record<ManagedEnvKey, string>> = {
     "Set to `1` to disable 1M context window support. Leave unset to keep 1M context enabled when Claude Code supports it.",
   CLAUDE_CODE_DISABLE_ATTACHMENTS:
     "Set to `1` to disable attachment processing so `@` file mentions are sent as plain text. Leave unset to keep attachment processing enabled.",
+  CLAUDE_CODE_ENABLE_AUTO_MODE:
+    "Claude executes all actions with background safety checks that verify alignment with your request. Reduces permission prompts while maintaining oversight. Only available when Base URL is set.",
 };

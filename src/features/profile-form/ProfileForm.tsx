@@ -76,7 +76,15 @@ function getFieldType(key: ManagedEnvKey, showSecrets: boolean): string {
 }
 
 function isBooleanAdvancedKey(key: ManagedEnvKey): boolean {
-  return key === "CLAUDE_CODE_DISABLE_1M_CONTEXT" || key === "CLAUDE_CODE_DISABLE_ATTACHMENTS";
+  return (
+    key === "CLAUDE_CODE_DISABLE_1M_CONTEXT" ||
+    key === "CLAUDE_CODE_DISABLE_ATTACHMENTS" ||
+    key === "CLAUDE_CODE_ENABLE_AUTO_MODE"
+  );
+}
+
+function isAutoModeKey(key: ManagedEnvKey): boolean {
+  return key === "CLAUDE_CODE_ENABLE_AUTO_MODE";
 }
 
 function renderDescription(text: string) {
@@ -177,6 +185,14 @@ export function ProfileForm({
   }, [initialValues, form]);
 
   const formValues = useStore(form.store, (state) => state.values);
+  const baseUrl = useStore(form.store, (state) => state.values.env.ANTHROPIC_BASE_URL);
+  const hasBaseUrl = Boolean(baseUrl?.trim());
+
+  useEffect(() => {
+    if (!hasBaseUrl) {
+      form.setFieldValue("env.CLAUDE_CODE_ENABLE_AUTO_MODE", "");
+    }
+  }, [hasBaseUrl, form]);
 
   const isDirty = useMemo(() => {
     return (
@@ -327,88 +343,96 @@ export function ProfileForm({
                   <Accordion.Panel>
                     <Accordion.Body>
                       <div className="grid gap-5">
-                        {advancedEnvKeys.map((key) => (
-                          <form.Field
-                            key={key}
-                            name={`env.${key}` as `env.${ManagedEnvKey}`}
-                            validators={{
-                              onChange: ({ value }) => {
-                                const trimmed = value.trim();
+                        {advancedEnvKeys.map((key) => {
+                          if (isAutoModeKey(key) && !hasBaseUrl) {
+                            return null;
+                          }
 
-                                if (!trimmed) return undefined;
+                          return (
+                            <form.Field
+                              key={key}
+                              name={`env.${key}` as `env.${ManagedEnvKey}`}
+                              validators={{
+                                onChange: ({ value }) => {
+                                  const trimmed = value.trim();
 
-                                if (isBooleanAdvancedKey(key)) {
-                                  return trimmed === "1" ? undefined : 'Must be "1" when enabled.';
-                                }
+                                  if (!trimmed) return undefined;
 
-                                if (key === "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE") {
-                                  if (!isValidIntegerInRange(trimmed, 1, 100)) {
-                                    return "Must be an integer between 1 and 100.";
+                                  if (isBooleanAdvancedKey(key)) {
+                                    return trimmed === "1"
+                                      ? undefined
+                                      : 'Must be "1" when enabled.';
                                   }
-                                } else if (!isValidIntegerInRange(trimmed, 1)) {
-                                  return "Must be a positive integer.";
-                                }
 
-                                return undefined;
-                              },
-                            }}
-                            children={(field) => {
-                              const isBoolean = isBooleanAdvancedKey(key);
-                              const checked = field.state.value.trim() === "1";
+                                  if (key === "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE") {
+                                    if (!isValidIntegerInRange(trimmed, 1, 100)) {
+                                      return "Must be an integer between 1 and 100.";
+                                    }
+                                  } else if (!isValidIntegerInRange(trimmed, 1)) {
+                                    return "Must be a positive integer.";
+                                  }
 
-                              return (
-                                <TextField
-                                  isInvalid={field.state.meta.errors.length > 0}
-                                  value={field.state.value}
-                                  onBlur={() => field.handleBlur()}
-                                  onChange={(val) => field.handleChange(val)}
-                                >
-                                  <Label className="text-sm font-medium text-[var(--app-text)]">
-                                    <code className="rounded border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-1.5 py-0.5 font-mono text-xs">
-                                      {key}
-                                    </code>
-                                  </Label>
-                                  {managedKeyDescriptions[key] ? (
-                                    <p className="mt-1 text-xs leading-5 text-[var(--app-text-subtle)]">
-                                      {renderDescription(managedKeyDescriptions[key])}
-                                    </p>
-                                  ) : null}
-                                  {isBoolean ? (
-                                    <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-3 py-3 text-sm text-[var(--app-text)]">
-                                      <input
-                                        aria-label={managedKeyLabels[key]}
-                                        checked={checked}
-                                        className="mt-0.5 h-4 w-4 rounded border-[var(--app-border)] bg-transparent"
-                                        type="checkbox"
-                                        onBlur={() => field.handleBlur()}
-                                        onChange={(event) => {
-                                          field.handleChange(event.target.checked ? "1" : "");
-                                        }}
+                                  return undefined;
+                                },
+                              }}
+                              children={(field) => {
+                                const isBoolean = isBooleanAdvancedKey(key);
+                                const checked = field.state.value.trim() === "1";
+
+                                return (
+                                  <TextField
+                                    isInvalid={field.state.meta.errors.length > 0}
+                                    value={field.state.value}
+                                    onBlur={() => field.handleBlur()}
+                                    onChange={(val) => field.handleChange(val)}
+                                  >
+                                    <Label className="text-sm font-medium text-[var(--app-text)]">
+                                      <code className="rounded border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-1.5 py-0.5 font-mono text-xs">
+                                        {key}
+                                      </code>
+                                    </Label>
+                                    {managedKeyDescriptions[key] ? (
+                                      <p className="mt-1 text-xs leading-5 text-[var(--app-text-subtle)]">
+                                        {renderDescription(managedKeyDescriptions[key])}
+                                      </p>
+                                    ) : null}
+                                    {isBoolean ? (
+                                      <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-3 py-3 text-sm text-[var(--app-text)]">
+                                        <input
+                                          aria-label={managedKeyLabels[key]}
+                                          checked={checked}
+                                          className="mt-0.5 h-4 w-4 rounded border-[var(--app-border)] bg-transparent"
+                                          type="checkbox"
+                                          onBlur={() => field.handleBlur()}
+                                          onChange={(event) => {
+                                            field.handleChange(event.target.checked ? "1" : "");
+                                          }}
+                                        />
+                                        <span className="space-y-1 leading-5">
+                                          <span className="block font-medium text-[var(--app-text)]">
+                                            {managedKeyLabels[key]}
+                                          </span>
+                                          <span className="block text-xs text-[var(--app-text-subtle)]">
+                                            {checked ? "Enabled" : "Disabled"}
+                                          </span>
+                                        </span>
+                                      </label>
+                                    ) : (
+                                      <Input
+                                        className={inputClassName}
+                                        inputMode="numeric"
+                                        type="text"
                                       />
-                                      <span className="space-y-1 leading-5">
-                                        <span className="block font-medium text-[var(--app-text)]">
-                                          {managedKeyLabels[key]}
-                                        </span>
-                                        <span className="block text-xs text-[var(--app-text-subtle)]">
-                                          {checked ? "Enabled" : "Disabled"}
-                                        </span>
-                                      </span>
-                                    </label>
-                                  ) : (
-                                    <Input
-                                      className={inputClassName}
-                                      inputMode="numeric"
-                                      type="text"
-                                    />
-                                  )}
-                                  <FieldError className="mt-2 text-sm text-rose-300">
-                                    {field.state.meta.errors[0]}
-                                  </FieldError>
-                                </TextField>
-                              );
-                            }}
-                          />
-                        ))}
+                                    )}
+                                    <FieldError className="mt-2 text-sm text-rose-300">
+                                      {field.state.meta.errors[0]}
+                                    </FieldError>
+                                  </TextField>
+                                );
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     </Accordion.Body>
                   </Accordion.Panel>
@@ -434,7 +458,7 @@ export function ProfileForm({
                       <Save className="h-4 w-4" />
                       <span>
                         {isSaving
-                          ? "Saving\u2026"
+                          ? "Saving…"
                           : mode === "create"
                             ? "Create profile"
                             : "Save changes"}

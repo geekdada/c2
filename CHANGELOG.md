@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/royli/c2-app/compare/v0.2.4...v0.3.0) (2026-07-17)
+
+
+### Features
+
+* add auto mode profile setting ([2a7a729](https://github.com/royli/c2-app/commit/2a7a7290b034261fd15b706ffb98ab1c4eb0d6ae))
+
 ## [0.2.4](https://github.com/royli/c2-app/compare/v0.2.3...v0.2.4) (2026-04-20)
 
 

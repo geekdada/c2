@@ -63,6 +63,7 @@ export function applyProfile(
 
   if (!validatedProfile.env.ANTHROPIC_BASE_URL?.trim()) {
     delete nextEnv.CLAUDE_CODE_ENABLE_AUTO_MODE;
+    delete nextEnv.CLAUDE_CODE_ATTRIBUTION_HEADER;
   }
 
   if (Object.keys(nextEnv).length > 0) {

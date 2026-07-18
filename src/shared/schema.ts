@@ -106,6 +106,17 @@ export const managedEnvSchema = managedEnvBaseSchema.superRefine((env, ctx) => {
       message: 'Must be "1" when enabled.',
     });
   }
+
+  if (
+    env.CLAUDE_CODE_ATTRIBUTION_HEADER?.trim() &&
+    env.CLAUDE_CODE_ATTRIBUTION_HEADER.trim() !== "0"
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["CLAUDE_CODE_ATTRIBUTION_HEADER"],
+      message: 'Must be "0" when disabled.',
+    });
+  }
 });
 
 export const profileInputSchema = z.object({
@@ -220,6 +231,13 @@ export function sanitizeManagedEnvForImport(
 
   if (normalized.CLAUDE_CODE_ENABLE_AUTO_MODE && normalized.CLAUDE_CODE_ENABLE_AUTO_MODE !== "1") {
     delete normalized.CLAUDE_CODE_ENABLE_AUTO_MODE;
+  }
+
+  if (
+    normalized.CLAUDE_CODE_ATTRIBUTION_HEADER &&
+    normalized.CLAUDE_CODE_ATTRIBUTION_HEADER !== "0"
+  ) {
+    delete normalized.CLAUDE_CODE_ATTRIBUTION_HEADER;
   }
 
   return normalized;

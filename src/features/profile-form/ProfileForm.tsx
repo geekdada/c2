@@ -79,12 +79,27 @@ function isBooleanAdvancedKey(key: ManagedEnvKey): boolean {
   return (
     key === "CLAUDE_CODE_DISABLE_1M_CONTEXT" ||
     key === "CLAUDE_CODE_DISABLE_ATTACHMENTS" ||
-    key === "CLAUDE_CODE_ENABLE_AUTO_MODE"
+    key === "CLAUDE_CODE_ENABLE_AUTO_MODE" ||
+    key === "CLAUDE_CODE_ATTRIBUTION_HEADER"
   );
 }
 
-function isAutoModeKey(key: ManagedEnvKey): boolean {
-  return key === "CLAUDE_CODE_ENABLE_AUTO_MODE";
+function isBaseUrlGatedKey(key: ManagedEnvKey): boolean {
+  return key === "CLAUDE_CODE_ENABLE_AUTO_MODE" || key === "CLAUDE_CODE_ATTRIBUTION_HEADER";
+}
+
+function isBooleanChecked(key: ManagedEnvKey, value: string): boolean {
+  const trimmed = value.trim();
+
+  return key === "CLAUDE_CODE_ATTRIBUTION_HEADER" ? trimmed !== "0" : trimmed === "1";
+}
+
+function booleanValueForChecked(key: ManagedEnvKey, checked: boolean): string {
+  if (key === "CLAUDE_CODE_ATTRIBUTION_HEADER") {
+    return checked ? "" : "0";
+  }
+
+  return checked ? "1" : "";
 }
 
 function renderDescription(text: string) {
@@ -191,6 +206,7 @@ export function ProfileForm({
   useEffect(() => {
     if (!hasBaseUrl) {
       form.setFieldValue("env.CLAUDE_CODE_ENABLE_AUTO_MODE", "");
+      form.setFieldValue("env.CLAUDE_CODE_ATTRIBUTION_HEADER", "");
     }
   }, [hasBaseUrl, form]);
 
@@ -344,7 +360,7 @@ export function ProfileForm({
                     <Accordion.Body>
                       <div className="grid gap-5">
                         {advancedEnvKeys.map((key) => {
-                          if (isAutoModeKey(key) && !hasBaseUrl) {
+                          if (isBaseUrlGatedKey(key) && !hasBaseUrl) {
                             return null;
                           }
 
@@ -359,6 +375,12 @@ export function ProfileForm({
                                   if (!trimmed) return undefined;
 
                                   if (isBooleanAdvancedKey(key)) {
+                                    if (key === "CLAUDE_CODE_ATTRIBUTION_HEADER") {
+                                      return trimmed === "0"
+                                        ? undefined
+                                        : 'Must be "0" when disabled.';
+                                    }
+
                                     return trimmed === "1"
                                       ? undefined
                                       : 'Must be "1" when enabled.';
@@ -377,7 +399,7 @@ export function ProfileForm({
                               }}
                               children={(field) => {
                                 const isBoolean = isBooleanAdvancedKey(key);
-                                const checked = field.state.value.trim() === "1";
+                                const checked = isBooleanChecked(key, field.state.value);
 
                                 return (
                                   <TextField
@@ -405,16 +427,13 @@ export function ProfileForm({
                                           type="checkbox"
                                           onBlur={() => field.handleBlur()}
                                           onChange={(event) => {
-                                            field.handleChange(event.target.checked ? "1" : "");
+                                            field.handleChange(
+                                              booleanValueForChecked(key, event.target.checked),
+                                            );
                                           }}
                                         />
-                                        <span className="space-y-1 leading-5">
-                                          <span className="block font-medium text-[var(--app-text)]">
-                                            {managedKeyLabels[key]}
-                                          </span>
-                                          <span className="block text-xs text-[var(--app-text-subtle)]">
-                                            {checked ? "Enabled" : "Disabled"}
-                                          </span>
+                                        <span className="leading-5 font-medium text-[var(--app-text)]">
+                                          {managedKeyLabels[key]}
                                         </span>
                                       </label>
                                     ) : (

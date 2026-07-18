@@ -59,6 +59,7 @@ describe("schema helpers", () => {
           CLAUDE_CODE_DISABLE_1M_CONTEXT: "1",
           CLAUDE_CODE_DISABLE_ATTACHMENTS: "1",
           CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+          CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
         },
       }),
     ).not.toThrow();
@@ -130,6 +131,16 @@ describe("schema helpers", () => {
         },
       }),
     ).toThrowError(/enabled/i);
+
+    expect(() =>
+      validateProfileInput({
+        name: "Bad attribution header",
+        env: {
+          ANTHROPIC_API_KEY: "sk-test-123",
+          CLAUDE_CODE_ATTRIBUTION_HEADER: "1",
+        },
+      }),
+    ).toThrowError(/disabled/i);
   });
 
   it("drops invalid imported advanced values and keeps valid boolean flags", () => {
@@ -148,6 +159,27 @@ describe("schema helpers", () => {
       CLAUDE_CODE_MAX_OUTPUT_TOKENS: "1024",
       CLAUDE_CODE_DISABLE_1M_CONTEXT: "1",
       CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+    });
+  });
+
+  it("sanitizes the attribution header flag on import", () => {
+    expect(
+      sanitizeManagedEnvForImport({
+        ANTHROPIC_API_KEY: "sk-test-123",
+        CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
+      }),
+    ).toEqual({
+      ANTHROPIC_API_KEY: "sk-test-123",
+      CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
+    });
+
+    expect(
+      sanitizeManagedEnvForImport({
+        ANTHROPIC_API_KEY: "sk-test-123",
+        CLAUDE_CODE_ATTRIBUTION_HEADER: "1",
+      }),
+    ).toEqual({
+      ANTHROPIC_API_KEY: "sk-test-123",
     });
   });
 

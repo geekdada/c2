@@ -105,6 +105,7 @@ describe("switchProfileInClaudeSettings", () => {
         ANTHROPIC_API_KEY: "key-next",
         ANTHROPIC_BASE_URL: "https://api.example.com",
         CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
       },
       createdAt: "2026-04-13T00:00:00.000Z",
       updatedAt: "2026-04-13T00:00:00.000Z",
@@ -126,12 +127,14 @@ describe("switchProfileInClaudeSettings", () => {
         ANTHROPIC_API_KEY: "key-next",
         ANTHROPIC_BASE_URL: "https://api.example.com",
         CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
       },
     });
     expect(result.snapshot.managedEnv).toEqual({
       ANTHROPIC_API_KEY: "key-next",
       ANTHROPIC_BASE_URL: "https://api.example.com",
       CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+      CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
     });
   });
 
@@ -143,6 +146,7 @@ describe("switchProfileInClaudeSettings", () => {
       env: {
         ANTHROPIC_API_KEY: "key-next",
         CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+        CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
       },
       createdAt: "2026-04-13T00:00:00.000Z",
       updatedAt: "2026-04-13T00:00:00.000Z",
@@ -162,6 +166,7 @@ describe("switchProfileInClaudeSettings", () => {
             ANTHROPIC_API_KEY: "key-current",
             ANTHROPIC_BASE_URL: "https://old.example.com",
             CLAUDE_CODE_ENABLE_AUTO_MODE: "1",
+            CLAUDE_CODE_ATTRIBUTION_HEADER: "0",
           },
         },
         null,

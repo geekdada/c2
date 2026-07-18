@@ -13,6 +13,7 @@ export const managedEnvKeys = [
   "CLAUDE_CODE_DISABLE_1M_CONTEXT",
   "CLAUDE_CODE_DISABLE_ATTACHMENTS",
   "CLAUDE_CODE_ENABLE_AUTO_MODE",
+  "CLAUDE_CODE_ATTRIBUTION_HEADER",
 ] as const;
 
 export const managedSecretKeys = ["ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN"] as const;
@@ -48,6 +49,7 @@ export const advancedEnvKeys: readonly ManagedEnvKey[] = [
   "CLAUDE_CODE_DISABLE_1M_CONTEXT",
   "CLAUDE_CODE_DISABLE_ATTACHMENTS",
   "CLAUDE_CODE_ENABLE_AUTO_MODE",
+  "CLAUDE_CODE_ATTRIBUTION_HEADER",
 ];
 
 export const managedKeyLabels: Record<ManagedEnvKey, string> = {
@@ -65,6 +67,7 @@ export const managedKeyLabels: Record<ManagedEnvKey, string> = {
   CLAUDE_CODE_DISABLE_1M_CONTEXT: "Disable 1M context",
   CLAUDE_CODE_DISABLE_ATTACHMENTS: "Disable attachments",
   CLAUDE_CODE_ENABLE_AUTO_MODE: "Enable auto mode",
+  CLAUDE_CODE_ATTRIBUTION_HEADER: "Attribution header",
 };
 
 export const managedKeyDescriptions: Partial<Record<ManagedEnvKey, string>> = {
@@ -80,4 +83,6 @@ export const managedKeyDescriptions: Partial<Record<ManagedEnvKey, string>> = {
     "Set to `1` to disable attachment processing so `@` file mentions are sent as plain text. Leave unset to keep attachment processing enabled.",
   CLAUDE_CODE_ENABLE_AUTO_MODE:
     "Claude executes all actions with background safety checks that verify alignment with your request. Reduces permission prompts while maintaining oversight. Only available when Base URL is set.",
+  CLAUDE_CODE_ATTRIBUTION_HEADER:
+    "Set to `0` to omit the attribution block (client version and prompt fingerprint) from the start of the system prompt. Disabling it improves prompt-cache hit rates when routing through an LLM gateway. Caching on a direct connection to the Anthropic API is unaffected either way",
 };

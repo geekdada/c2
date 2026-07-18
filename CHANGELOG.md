@@ -1,3 +1,11 @@
+# [0.4.0](https://github.com/royli/c2-app/compare/v0.3.0...v0.4.0) (2026-07-18)
+
+
+### Features
+
+* add attribution header toggle ([9c56efe](https://github.com/royli/c2-app/commit/9c56efe3224a23bf75d00e7ced4e2adf32f425ce))
+* add fable and subagent model overrides ([edf3bc3](https://github.com/royli/c2-app/commit/edf3bc35052493aba5836c874d4c3f8dbb33b0ba))
+
 # [0.3.0](https://github.com/royli/c2-app/compare/v0.2.4...v0.3.0) (2026-07-17)
 
 

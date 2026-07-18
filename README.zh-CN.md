@@ -21,12 +21,12 @@ C2 是一个 Electron 桌面应用，让你在多个 Claude Code 配置之间自
 
 C2 会在 `~/.claude/settings.json` 中写入以下环境变量：
 
-| 分类 | 字段                                                                                                                                                                       |
-| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 凭据 | `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN`                                                                                                                                |
-| 端点 | `ANTHROPIC_BASE_URL`                                                                                                                                                       |
-| 模型 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL`                                                                          |
-| 高级 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`、`CLAUDE_CODE_AUTO_COMPACT_WINDOW`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS`、`CLAUDE_CODE_DISABLE_1M_CONTEXT`、`CLAUDE_CODE_DISABLE_ATTACHMENTS` |
+| 分类 | 字段                                                                                                                                                                                                                                         |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 凭据 | `ANTHROPIC_API_KEY`、`ANTHROPIC_AUTH_TOKEN`                                                                                                                                                                                                  |
+| 端点 | `ANTHROPIC_BASE_URL`                                                                                                                                                                                                                         |
+| 模型 | `ANTHROPIC_DEFAULT_HAIKU_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_FABLE_MODEL`、`CLAUDE_CODE_SUBAGENT_MODEL`                                                                             |
+| 高级 | `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`、`CLAUDE_CODE_AUTO_COMPACT_WINDOW`、`CLAUDE_CODE_MAX_OUTPUT_TOKENS`、`CLAUDE_CODE_DISABLE_1M_CONTEXT`、`CLAUDE_CODE_DISABLE_ATTACHMENTS`、`CLAUDE_CODE_ENABLE_AUTO_MODE`、`CLAUDE_CODE_ATTRIBUTION_HEADER` |
 
 ## 安装
 
